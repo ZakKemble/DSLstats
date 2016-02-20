@@ -45,7 +45,7 @@ COOKIE=$(echo -n "${LOGIN_PAGE}" | grep ${SESSIONCOOKIE} | sed -e 's/.*'${SESSIO
 CSRF_PARAM_TOKEN=$(echo -n "${LOGIN_PAGE}" | grep csrf_ | sed -e 's/.*content="\(.*\)".*/\1/')
 
 # Split the CSRF stuff
-read -a CSRF_DATA <<< ${CSRF_PARAM_TOKEN}
+CSRF_DATA=(${CSRF_PARAM_TOKEN})
 CSRF_PARAM=${CSRF_DATA[0]}
 CSRF_TOKEN=${CSRF_DATA[1]}
 
