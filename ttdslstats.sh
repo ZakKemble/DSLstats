@@ -7,6 +7,7 @@
 USERNAME="admin"
 PASSWORD="admin"
 ADDRESS="192.168.1.1"
+AUTHTYPE=1
 
 DEBUG=0
 
@@ -49,28 +50,21 @@ CSRF_DATA=(${CSRF_PARAM_TOKEN})
 CSRF_PARAM=${CSRF_DATA[0]}
 CSRF_TOKEN=${CSRF_DATA[1]}
 
-# Check to see if this router is a HG633, as a few extra things are needed when processing the password
-IS_HG633=0
-TMP=$(echo -n "${LOGIN_PAGE}" | grep HG633)
-if [ $? -eq 0 ]; then
-	IS_HG633=1
-fi
-
 # Hash the password
 # 1> Hash the password using SHA256
 # 2> Base64 encode the hash
-# 3> Concatenate the username + base64 encoded password hash + CSRF parameter + CSRF token (HG633 only)
-# 4> Hash the concatenated string using SHA256 (HG633 only)
+# 3> Concatenate the username + base64 encoded password hash + CSRF parameter + CSRF token (AUTHTYPE = 1)
+# 4> Hash the concatenated string using SHA256 (AUTHTYPE = 1)
 # 5> Profit?
 PASSWORD_HASH=$(echo -n $(echo -n ${PASSWORD} | sha256sum | cut -c -64) | base64 -w 0)
-if [ ${IS_HG633} -eq 1 ]; then
+if [ ${AUTHTYPE} -eq 1 ]; then
 	DATA_TO_HASH=${USERNAME}${PASSWORD_HASH}${CSRF_PARAM}${CSRF_TOKEN}
 	FINAL_HASH=$(echo -n ${DATA_TO_HASH} | sha256sum | cut -c -64)
 else
 	FINAL_HASH=${PASSWORD_HASH}
 fi
 
-debugPrint "*ISHG633: ${IS_HG633}"
+debugPrint "*AUTHTYPE: ${AUTHTYPE}"
 debugPrint "*COOKIE: ${COOKIE}"
 debugPrint "*PARAM_TOKEN: ${CSRF_PARAM_TOKEN}"
 debugPrint "*PARAM: ${CSRF_PARAM}"
